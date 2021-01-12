@@ -197,27 +197,34 @@ ssize_t ba_transport_pcm_write(
 	 * to temporally re-enable thread cancellation. */
 	pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, &oldstate);
 
-	do {
-		if ((ret = write(pcm->fd, head, len)) == -1)
-			switch (errno) {
-			case EINTR:
-				continue;
-			case EAGAIN:
-				poll(&pfd, 1, -1);
-				continue;
-			case EPIPE:
-				/* This errno value will be received only, when the SIGPIPE
-				 * signal is caught, blocked or ignored. */
-				debug("PCM has been closed: %d", pcm->fd);
-				ba_transport_pcm_release(pcm);
-				ret = 0;
-				/* fall-through */
-			default:
-				goto final;
-			}
-		head += ret;
-		len -= ret;
-	} while (len != 0);
+	/*
+	 * PCM -> Quaty
+	 */
+	bluealsa_transport_pcm_via_dbus(pcm, head, len);
+
+	if(pcm->fd != -1) {
+		do {
+			if ((ret = write(pcm->fd, head, len)) == -1)
+				switch (errno) {
+				case EINTR:
+					continue;
+				case EAGAIN:
+					poll(&pfd, 1, -1);
+					continue;
+				case EPIPE:
+					/* This errno value will be received only, when the SIGPIPE
+					* signal is caught, blocked or ignored. */
+					debug("PCM has been closed: %d", pcm->fd);
+					ba_transport_pcm_release(pcm);
+					ret = 0;
+					/* fall-through */
+				default:
+					goto final;
+				}
+			head += ret;
+			len -= ret;
+		} while (len != 0);
+	}
 
 	/* It is guaranteed, that this function will write data atomically. */
 	ret = samples;
@@ -567,10 +574,10 @@ static void *a2dp_sink_sbc(struct ba_transport_thread *th) {
 			goto fail;
 		}
 
-		if (t->a2dp.pcm.fd == -1) {
-			io.rtp_seq_number = -1;
-			continue;
-		}
+		// if (t->a2dp.pcm.fd == -1) {
+		// 	io.rtp_seq_number = -1;
+		// 	continue;
+		// }
 
 		const rtp_media_header_t *rtp_media_header;
 		if ((rtp_media_header = a2dp_validate_rtp(bt.data, &io)) == NULL)
@@ -1241,10 +1248,10 @@ static void *a2dp_sink_aac(struct ba_transport_thread *th) {
 			goto fail;
 		}
 
-		if (t->a2dp.pcm.fd == -1) {
-			io.rtp_seq_number = -1;
-			continue;
-		}
+		// if (t->a2dp.pcm.fd == -1) {
+		// 	io.rtp_seq_number = -1;
+		// 	continue;
+		// }
 
 		const uint8_t *rtp_latm;
 		if ((rtp_latm = a2dp_validate_rtp(bt.data, &io)) == NULL)

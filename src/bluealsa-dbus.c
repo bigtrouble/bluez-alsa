@@ -868,3 +868,24 @@ void bluealsa_dbus_rfcomm_unregister(struct ba_rfcomm *r) {
 	g_dbus_connection_unregister_object(config.dbus, r->ba_dbus_id);
 	r->ba_dbus_id = 0;
 }
+
+
+
+/**
+ * Append for Quaty. 
+ */
+void bluealsa_transport_pcm_via_dbus(struct ba_transport_pcm *pcm, const uint8_t *head, size_t len) {
+	GVariant* data = g_variant_new_from_data(
+		G_VARIANT_TYPE ("ay"),
+		head,
+		len,
+		TRUE,
+		NULL,
+		NULL
+	);
+	g_dbus_connection_emit_signal(
+		config.dbus, NULL,
+		"/org/bluealsa", BLUEALSA_IFACE_PCM, "PCMData",
+		g_variant_new("(ov)", pcm->ba_dbus_path, data), NULL
+	);
+}
