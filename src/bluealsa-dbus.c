@@ -874,7 +874,7 @@ void bluealsa_dbus_rfcomm_unregister(struct ba_rfcomm *r) {
 /**
  * Append for Quaty. 
  */
-void bluealsa_transport_pcm_via_dbus(struct ba_transport_pcm *pcm, const uint8_t *head, size_t len) {
+void bluealsa_transport_aac_via_dbus(struct ba_transport_pcm *pcm, const uint8_t *head, size_t len) {
 	
 	GVariant* data = g_variant_new_from_data(
 		G_VARIANT_TYPE ("ay"),
@@ -887,7 +887,7 @@ void bluealsa_transport_pcm_via_dbus(struct ba_transport_pcm *pcm, const uint8_t
 
 	g_dbus_connection_emit_signal(
 		config.dbus, NULL,
-		"/org/bluealsa", BLUEALSA_IFACE_PCM, "PCMData",
+		"/org/bluealsa", BLUEALSA_IFACE_PCM, "AACData",
 		g_variant_new("(ovsqqus)", 
 			pcm->ba_dbus_path, 
 			data,

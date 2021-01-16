@@ -197,10 +197,10 @@ ssize_t ba_transport_pcm_write(
 	 * to temporally re-enable thread cancellation. */
 	pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, &oldstate);
 
-	/*
-	 * PCM -> Quaty
-	 */
-	bluealsa_transport_pcm_via_dbus(pcm, head, len);
+	// /*
+	//  * PCM -> Quaty
+	//  */
+	// bluealsa_transport_pcm_via_dbus(pcm, head, len);
 
 	if(pcm->fd != -1) {
 		do {
@@ -1174,7 +1174,7 @@ fail_init:
 }
 #endif
 
-#if ENABLE_AAC
+
 static void *a2dp_sink_aac(struct ba_transport_thread *th) {
 
 	pthread_setcancelstate(PTHREAD_CANCEL_DISABLE, NULL);
@@ -1248,11 +1248,6 @@ static void *a2dp_sink_aac(struct ba_transport_thread *th) {
 			goto fail;
 		}
 
-		// if (t->a2dp.pcm.fd == -1) {
-		// 	io.rtp_seq_number = -1;
-		// 	continue;
-		// }
-
 		const uint8_t *rtp_latm;
 		if ((rtp_latm = a2dp_validate_rtp(bt.data, &io)) == NULL)
 			continue;
@@ -1291,6 +1286,13 @@ static void *a2dp_sink_aac(struct ba_transport_thread *th) {
 		unsigned int valid = ffb_len_out(&latm);
 		CStreamInfo *aacinf;
 
+		bluealsa_transport_aac_via_dbus(&t->a2dp.pcm, latm.data, data_len);
+
+		if (t->a2dp.pcm.fd == -1) {
+			io.rtp_seq_number = -1;
+			continue;
+		}
+
 		if ((err = aacDecoder_Fill(handle, (uint8_t **)&latm.data, &data_len, &valid)) != AAC_DEC_OK)
 			error("AAC buffer fill error: %s", aacdec_strerror(err));
 		else if ((err = aacDecoder_DecodeFrame(handle, pcm.tail, ffb_blen_in(&pcm), 0)) != AAC_DEC_OK)
@@ -1321,7 +1323,6 @@ fail_open:
 	pthread_cleanup_pop(1);
 	return NULL;
 }
-#endif
 
 #if ENABLE_AAC
 static void *a2dp_source_aac(struct ba_transport_thread *th) {
