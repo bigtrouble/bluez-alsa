@@ -1290,6 +1290,7 @@ static void *a2dp_sink_aac(struct ba_transport_thread *th) {
 
 		if (t->a2dp.pcm.fd == -1) {
 			io.rtp_seq_number = -1;
+			ffb_rewind(&latm);
 			continue;
 		}
 
