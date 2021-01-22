@@ -200,7 +200,7 @@ ssize_t ba_transport_pcm_write(
 	// /*
 	//  * PCM -> Quaty
 	//  */
-	bluealsa_transport_pcm_via_dbus(pcm, head, len);
+	// bluealsa_transport_pcm_via_dbus(pcm, head, len);
 
 	if(pcm->fd != -1) {
 		do {
@@ -1291,11 +1291,11 @@ static void *a2dp_sink_aac(struct ba_transport_thread *th) {
 		 */
 		bluealsa_transport_aac_via_dbus(&t->a2dp.pcm, latm.data, data_len);
 
-		// if (t->a2dp.pcm.fd == -1) {
-		// 	io.rtp_seq_number = -1;
-		// 	ffb_rewind(&latm);
-		// 	continue;
-		// }
+		if (t->a2dp.pcm.fd == -1) {
+			io.rtp_seq_number = -1;
+			ffb_rewind(&latm);
+			continue;
+		}
 
 		if ((err = aacDecoder_Fill(handle, (uint8_t **)&latm.data, &data_len, &valid)) != AAC_DEC_OK)
 			error("AAC buffer fill error: %s", aacdec_strerror(err));
