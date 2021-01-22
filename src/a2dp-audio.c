@@ -1283,8 +1283,8 @@ static void *a2dp_sink_aac(struct ba_transport_thread *th) {
 		}
 
 		unsigned int data_len = ffb_len_out(&latm);
-		unsigned int valid = ffb_len_out(&latm);
-		CStreamInfo *aacinf;
+		// unsigned int valid = ffb_len_out(&latm);
+		// CStreamInfo *aacinf;
 
 		/**
 		 * Append By Quaty
@@ -1297,17 +1297,17 @@ static void *a2dp_sink_aac(struct ba_transport_thread *th) {
 		// 	continue;
 		// }
 
-		if ((err = aacDecoder_Fill(handle, (uint8_t **)&latm.data, &data_len, &valid)) != AAC_DEC_OK)
-			error("AAC buffer fill error: %s", aacdec_strerror(err));
-		else if ((err = aacDecoder_DecodeFrame(handle, pcm.tail, ffb_blen_in(&pcm), 0)) != AAC_DEC_OK)
-			error("AAC decode frame error: %s", aacdec_strerror(err));
-		else if ((aacinf = aacDecoder_GetStreamInfo(handle)) == NULL)
-			error("Couldn't get AAC stream info");
-		else {
-			const size_t samples = aacinf->frameSize * aacinf->numChannels;
-			if (ba_transport_pcm_write(&t->a2dp.pcm, pcm.data, samples) == -1)
-				error("FIFO write error: %s", strerror(errno));
-		}
+		// if ((err = aacDecoder_Fill(handle, (uint8_t **)&latm.data, &data_len, &valid)) != AAC_DEC_OK)
+		// 	error("AAC buffer fill error: %s", aacdec_strerror(err));
+		// else if ((err = aacDecoder_DecodeFrame(handle, pcm.tail, ffb_blen_in(&pcm), 0)) != AAC_DEC_OK)
+		// 	error("AAC decode frame error: %s", aacdec_strerror(err));
+		// else if ((aacinf = aacDecoder_GetStreamInfo(handle)) == NULL)
+		// 	error("Couldn't get AAC stream info");
+		// else {
+		// 	const size_t samples = aacinf->frameSize * aacinf->numChannels;
+		// 	if (ba_transport_pcm_write(&t->a2dp.pcm, pcm.data, samples) == -1)
+		// 		error("FIFO write error: %s", strerror(errno));
+		// }
 
 		/* make room for new LATM frame */
 		ffb_rewind(&latm);
